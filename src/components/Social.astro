@@ -1,0 +1,15 @@
+---
+import { Icon } from 'astro-icon';
+---
+
+<div class="grid grid-flow-col gap-4 place-content-center my-4">
+    {[
+        ['envelope-solid', 'mailto:me@ericdew.com', 'send an email to Eric Dew'],
+        ['github', 'https://github.com/ericdew', 'follow Eric Dew on GitHub'],
+        ['linkedin', 'https://www.linkedin.com/in/ericrdew/', 'follow Eric Dew on LinkedIn'],
+    ].map(([icon, url, description]) => (
+        <a href={url} class="w-8 fill-neutral-400 hover:fill-neutral-300" aria-label={description}>
+            <Icon name={icon} class="transition ease-in-out duration-300" />
+        </a>
+    ))}
+</div>
