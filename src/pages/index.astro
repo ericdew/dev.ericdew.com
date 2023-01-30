@@ -1,9 +1,29 @@
 ---
+import Header from '../components/Header.astro';
+import Project from '../components/Project.astro';
+import Social from '../components/Social.astro';
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Eric Dew">
-	<main>
+<Layout title="Eric Dew - Dev Tools & Projects" description="Random dev tools and projects I've built.">
+
+	<Header heading="Eric Dew" subheading="Data Consultant based in San Francisco, CA" />
+
+	<Social />
+
+	<main class="container m-auto max-w-3xl mt-8">
 		
+		<h2 class="text-center text-3xl pb-4">Projects</h2>
+
+		<section class="grid grid-cols-1 gap-4 auto-cols-max sm:grid-cols-2 sm:gap-3">
+			<Project
+				name="DBT Model Timing Parser"
+				description="Parse DBT build logs into individual model run times."
+				url="/dbt-model-timing-parser"
+				languages="JavaScript"
+			/>
+		</section>
+
 	</main>
+
 </Layout>

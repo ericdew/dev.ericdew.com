@@ -1,0 +1,22 @@
+---
+export interface Props {
+    name: string;
+    description: string;
+    url: string;
+    languages: string;
+}
+
+const { name, description, url, languages } = Astro.props;
+---
+
+<a href={url} class="hover:no-underline">
+    <div class="h-36 flex flex-col justify-between gap-y-2 border border-neutral-700 hover:scale-[1.01] ease-out transition-transform p-4 rounded-xl">
+        <div class="flex flex-col gap-y-2">
+            <span class="text-xl font-medium">{name}</span>
+            <p class="text-sm text-neutral-200">{description}</p>
+            </div>
+            <div class="flex items-center gap-x-2 text-sm text-neutral-200">
+            <div class="text-sm font-mono">{languages}</div>
+        </div>
+    </div>
+</a>

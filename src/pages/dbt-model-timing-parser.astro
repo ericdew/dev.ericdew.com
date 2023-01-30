@@ -1,0 +1,133 @@
+---
+import Header from '../components/Header.astro';
+import Button from '../components/ui/Button.astro';
+import Textarea from '../components/ui/Textarea.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+    title="DBT Model Timing Parser"
+    description="Parse DBT build logs into individual model run times."
+    >
+
+    <Header heading="DBT Model Timing Parser" subheading="Parse DBT build logs into individual model run times." />
+
+    <main class="max-w-screen-lg mx-auto px-8">
+        
+        <Textarea id="input" rows="4" placeholder="Paste your DBT build console logs here..." />
+        
+        <Button onclick="processText()">Parse</Button>
+        <Button onclick="copy(document.getElementById('output'))">Copy</Button>
+        <span id="copied" class="opacity-0 transition-opacity">✨ Copied</span>
+
+        <div class="relative overflow-x-auto mt-4 font-mono rounded-lg">
+            <table class="w-full text-sm text-left text-neutral-400">
+                <thead class="text-xs uppercase bg-zinc-700 text-neutral-400">
+                    <tr>
+                        {["Model", "Schema", "Table", "Seconds"].map((header) => (
+                            <th scope="col" class="px-6 py-3 cursor-pointer">{header}</th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody id="output"></tbody>
+            </table>
+        </div>
+        
+    </main>
+</Layout>
+
+<style is:inline>
+    tbody tr {
+        background-color: #27272a; 
+        border-color: #3f3f46; 
+    }
+
+    tbody tr td {
+        padding-top: 1rem;
+        padding-bottom: 1rem; 
+        padding-left: 1.5rem;
+        padding-right: 1.5rem; 
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+</style>
+
+<script client:inline>
+    function processText() {
+        const input = document.getElementById("input").value;
+        const lines = input.split("\n");
+        const tbody = document.getElementById("output");
+
+        // clear table body of any rows
+        while (tbody.firstChild) {
+            tbody.removeChild(tbody.firstChild);
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const isRun = line.indexOf("[SUCCESS") > -1;
+
+            if (!isRun) continue; // skip lines that don't include run times
+            
+            const seconds = line.match(/in ([0-9.]+)s/)[1];
+            const model = line.match(/model ([a-zA-Z_.0-9*]+) /)[1].replace(/^\*+_/, '');
+            const schema = model.split(".")[0];
+            const table = model.split(".")[1];
+
+            const row = tbody.insertRow(-1);
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+            const cell4 = row.insertCell(3);
+            
+            cell1.innerHTML = model;
+            cell2.innerHTML = schema;
+            cell3.innerHTML = table;
+            cell4.innerHTML = seconds;
+        }
+    }
+
+    function copy(element) {
+        const range = document.createRange();
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        range.selectNodeContents(element);
+        selection.addRange(range);
+        document.execCommand("Copy");
+
+        // reveal the "Copied" text
+        const copiedText = document.getElementById("copied");
+        copiedText.style.opacity = 1;
+
+        setTimeout(function() {
+            copiedText.style.opacity = 0;
+        }, 1000);
+    }
+
+    // handle sorting of table when headers are clicked
+    const table = document.querySelector("table");
+    const tbody = table.querySelector("tbody");
+    const headers = table.querySelectorAll("th");
+
+    headers.forEach(header => {
+        header.addEventListener("click", () => {
+            const index = Array.from(headers).indexOf(header);
+            const rows = Array.from(tbody.rows);
+            const direction = header.getAttribute("data-direction") === "ascending" ? 1 : -1;
+
+            header.setAttribute("data-direction", direction === 1 ? "descending" : "ascending");
+
+            rows.sort((a, b) => {
+                const aValue = a.cells[index].textContent;
+                const bValue = b.cells[index].textContent;
+
+                if (aValue < bValue) return -1 * direction;
+                if (aValue > bValue) return 1 * direction;
+                return 0;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+
+</script>
